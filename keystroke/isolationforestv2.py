@@ -102,10 +102,6 @@ def main():
         print("Invalid choice. Please enter 'train' or 'evaluate'.")
         return
 
-    # Continue with the rest of your code...
-
-    # ...
-
 
 if __name__ == "__main__":
     main()

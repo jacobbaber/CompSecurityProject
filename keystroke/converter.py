@@ -2,7 +2,7 @@ import pandas as pd
 import json
 
 # Load CSV file into a DataFrame
-csv_file_path = 'Goon_keypress_data.csv'
+csv_file_path = 'Sofia_keypress_data.csv'
 df = pd.read_csv(csv_file_path)
 
 # Create list of keys
@@ -23,5 +23,5 @@ json_data = {
 json_string = json.dumps(json_data, indent=4)
 
 
-with open('Goon_keypress_data.json', 'w') as json_file:
+with open('Sofia_keypress_data.json', 'w') as json_file:
     json_file.write(json_string)
