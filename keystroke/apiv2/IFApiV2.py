@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form, HTTPException, Depends
+from fastapi import FastAPI, Form, HTTPException, Depends, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 
 class RequestData(BaseModel):
@@ -16,6 +17,14 @@ class RequestData(BaseModel):
     data: dict
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -61,10 +70,6 @@ def evaluate_anomaly_score(model, new_data, scaler):
 
     return new_data_scores
 
-
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
 
 
 def get_model(name: str = Form(...)) -> IsolationForest:
@@ -117,6 +122,16 @@ def evaluate_data(request_data: RequestData):
     name = request_data.modelName
     data = request_data.data
 
+    # print number of keys
+    print(len(data['Key']))
+
+    # print number of deltas
+    print(len(data['Delta']))
+
+    # print number of durations
+    print(len(data['Duration']))
+
+
 
     model_path = f"{name}_model.joblib"
     try:
@@ -139,6 +154,22 @@ def evaluate_data(request_data: RequestData):
         "anomaly_score": np.mean(anomalies),
         "percentage_normal": percentage_normal,
     }
+
+@app.options("/evaluate-data/")
+async def options_evaluate_data():
+    return Response(headers={
+        'Access-Control-Allow-Origin': '*',  # Or the specific origin you want to allow
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type'
+    })
+
+@app.options("/train-model/")
+async def options_evaluate_data():
+    return Response(headers={
+        'Access-Control-Allow-Origin': '*',  # Or the specific origin you want to allow
+        'Access-Control-Allow-Methods': 'POST',
+        'Access-Control-Allow-Headers': 'Content-Type'
+    })
 
 
 if __name__ == "__main__":
